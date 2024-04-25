@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import { OBJLoader } from "three/examples/jsm/loaders/OBJLoader.js";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
-import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 
 // Create scene, camera, and renderer
 const scene = new THREE.Scene();
@@ -11,7 +11,7 @@ const camera = new THREE.PerspectiveCamera(5, window.innerWidth / window.innerHe
 
 camera.position.set(10, 5, 0);
 
-const renderer = new THREE.WebGLRenderer({antialias: true});
+const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setPixelRatio(window.devicePixelRatio);
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
@@ -21,7 +21,7 @@ const ambientLight = new THREE.AmbientLight(0x404040); // soft white light
 scene.add(ambientLight);
 
 const directionalLight = new THREE.DirectionalLight(0xffffff, 8); // white directional light
-directionalLight.position.set(0.25, .5, 1); // set the light's position
+directionalLight.position.set(0.25, 0.5, 1); // set the light's position
 scene.add(directionalLight);
 
 // Create OrbitControls
@@ -58,18 +58,33 @@ function onMouseClick(event) {
 
 window.addEventListener("mousedown", onMouseClick, false);
 
-// Load OBJ model
-const loader = new OBJLoader();
-loader.load(
-  "/091.obj", // replace this with the path to your model
-  function (group) {
-    // group.traverse(function (child) {
-    //   if (child instanceof THREE.Mesh) {
-    //     child.material = new THREE.MeshPhongMaterial({ color: 0xffffff }); // Set an initial color
-    //   }
-    // });
+// // Load OBJ model
+// const loader = new OBJLoader();
+// loader.load(
+//   "/091.obj", // replace this with the path to your model
+//   function (group) {
+//     // group.traverse(function (child) {
+//     //   if (child instanceof THREE.Mesh) {
+//     //     child.material = new THREE.MeshPhongMaterial({ color: 0xffffff }); // Set an initial color
+//     //   }
+//     // });
 
-    scene.add(group);
+//     scene.add(group);
+//   },
+//   function (xhr) {
+//     console.log((xhr.loaded / xhr.total) * 100 + "% loaded");
+//   },
+//   function (error) {
+//     console.log("An error happened");
+//   }
+// );
+
+// Load GLTF or GLB model
+const loader = new GLTFLoader();
+loader.load(
+  "/scene.gltf", // replace this with the path to your model
+  function (gltf) {
+    scene.add(gltf.scene);
   },
   function (xhr) {
     console.log((xhr.loaded / xhr.total) * 100 + "% loaded");
