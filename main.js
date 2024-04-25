@@ -82,7 +82,7 @@ window.addEventListener("mousedown", onMouseClick, false);
 // Load GLTF or GLB model
 const loader = new GLTFLoader();
 loader.load(
-  "/scene.gltf", // replace this with the path to your model
+  "/untitled4.glb", // replace this with the path to your model
   function (gltf) {
     scene.add(gltf.scene);
   },
