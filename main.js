@@ -2,12 +2,13 @@ import * as THREE from "three";
 import { OBJLoader } from "three/examples/jsm/loaders/OBJLoader.js";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+import { ColladaLoader } from 'three/examples/jsm/loaders/ColladaLoader.js';
 
 // Create scene, camera, and renderer
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0xffffff);
 
-const camera = new THREE.PerspectiveCamera(5, window.innerWidth / window.innerHeight, 0.1, 1000);
+const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 
 camera.position.set(10, 5, 0);
 
@@ -79,12 +80,27 @@ window.addEventListener("mousedown", onMouseClick, false);
 //   }
 // );
 
-// Load GLTF or GLB model
-const loader = new GLTFLoader();
+// // Load GLTF or GLB model
+// const loader = new GLTFLoader();
+// loader.load(
+//   "/untitled4.glb", // replace this with the path to your model
+//   function (gltf) {
+//     scene.add(gltf.scene);
+//   },
+//   function (xhr) {
+//     console.log((xhr.loaded / xhr.total) * 100 + "% loaded");
+//   },
+//   function (error) {
+//     console.log("An error happened");
+//   }
+// );
+
+// Load .dae model
+const loader = new ColladaLoader();
 loader.load(
-  "/untitled4.glb", // replace this with the path to your model
-  function (gltf) {
-    scene.add(gltf.scene);
+  "/model.dae", // replace this with the path to your model
+  function (collada) {
+    scene.add(collada.scene);
   },
   function (xhr) {
     console.log((xhr.loaded / xhr.total) * 100 + "% loaded");
