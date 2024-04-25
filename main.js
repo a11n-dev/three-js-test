@@ -59,7 +59,7 @@ window.addEventListener("mousedown", onMouseClick, false);
 // Load OBJ model
 const loader = new OBJLoader();
 loader.load(
-  "/models/model.obj", // replace this with the path to your model
+  "/model.obj", // replace this with the path to your model
   function (group) {
     group.traverse(function (child) {
       if (child instanceof THREE.Mesh) {
