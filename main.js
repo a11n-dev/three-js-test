@@ -21,7 +21,7 @@ document.body.appendChild(renderer.domElement);
 const ambientLight = new THREE.AmbientLight(0x404040); // soft white light
 scene.add(ambientLight);
 
-const directionalLight = new THREE.DirectionalLight(0xffffff, 8); // white directional light
+const directionalLight = new THREE.DirectionalLight(0xffffff, 2); // white directional light
 directionalLight.position.set(0.25, 0.5, 1); // set the light's position
 scene.add(directionalLight);
 
