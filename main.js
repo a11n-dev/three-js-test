@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import { OBJLoader } from "three/examples/jsm/loaders/OBJLoader.js";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
 // Create scene, camera, and renderer
 const scene = new THREE.Scene();
@@ -8,7 +9,7 @@ scene.background = new THREE.Color(0xffffff);
 
 const camera = new THREE.PerspectiveCamera(5, window.innerWidth / window.innerHeight, 0.1, 1000);
 
-camera.position.set(15, 5, 0);
+camera.position.set(10, 5, 0);
 
 const renderer = new THREE.WebGLRenderer({antialias: true});
 renderer.setPixelRatio(window.devicePixelRatio);
@@ -19,8 +20,8 @@ document.body.appendChild(renderer.domElement);
 const ambientLight = new THREE.AmbientLight(0x404040); // soft white light
 scene.add(ambientLight);
 
-const directionalLight = new THREE.DirectionalLight(0xffffff, 1); // white directional light
-directionalLight.position.set(0, 1, 1); // set the light's position
+const directionalLight = new THREE.DirectionalLight(0xffffff, 8); // white directional light
+directionalLight.position.set(0.25, .5, 1); // set the light's position
 scene.add(directionalLight);
 
 // Create OrbitControls
@@ -60,13 +61,13 @@ window.addEventListener("mousedown", onMouseClick, false);
 // Load OBJ model
 const loader = new OBJLoader();
 loader.load(
-  "/model.obj", // replace this with the path to your model
+  "/091.obj", // replace this with the path to your model
   function (group) {
-    group.traverse(function (child) {
-      if (child instanceof THREE.Mesh) {
-        child.material = new THREE.MeshPhongMaterial({ color: 0xffffff }); // Set an initial color
-      }
-    });
+    // group.traverse(function (child) {
+    //   if (child instanceof THREE.Mesh) {
+    //     child.material = new THREE.MeshPhongMaterial({ color: 0xffffff }); // Set an initial color
+    //   }
+    // });
 
     scene.add(group);
   },
