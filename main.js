@@ -14,8 +14,14 @@ const scene = new THREE.Scene();
 scene.background = new THREE.Color(0xffffff);
 
 // Create camera
-const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-camera.position.z = 200;
+// const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+
+// Create camera
+const aspect = window.innerWidth / window.innerHeight;
+const frustumSize = 10;
+const camera = new THREE.OrthographicCamera((frustumSize * aspect) / -2, (frustumSize * aspect) / 2, frustumSize / 2, frustumSize / -2, 0.1, 1000);
+
+// camera.position.z = 200;
 // camera.position.y = 10;
 // camera.position.x = 2.5;
 // camera.rotateX(-0.5);
@@ -56,23 +62,49 @@ loader.load(
 
     scene.add(model);
 
-    // Update the camera position based on the model's bounding box
-    model.traverse((object) => {
-      if (object.isMesh) {
-        object.geometry.computeBoundingBox();
-        const boundingBox = object.geometry.boundingBox;
-        const position = new THREE.Vector3();
-        boundingBox.getCenter(position);
-        const size = boundingBox.getSize(new THREE.Vector3());
+    // // Update the camera position based on the model's bounding box
+    // model.traverse((object) => {
+    //   if (object.isMesh) {
+    //     object.geometry.computeBoundingBox();
+    //     const boundingBox = object.geometry.boundingBox;
+    //     const position = new THREE.Vector3();
+    //     boundingBox.getCenter(position);
+    //     const size = boundingBox.getSize(new THREE.Vector3());
 
-        // Set the camera to look at the center of the bounding box
-        camera.lookAt(position);
+    //     // Set the camera to look at the center of the bounding box
+    //     camera.lookAt(position);
 
-        // Position the camera at the top of the bounding box
-        camera.position.set(position.x, position.y + size.y / 2, position.z);
-        // light.position.set(position.x, position.y + size.y / 2, 500);
-      }
-    });
+    //     // Position the camera at the top of the bounding box
+    //     camera.position.set(position.x, position.y + size.y / 2, );
+    //     // light.position.set(position.x, position.y + size.y / 2, 500);
+    //   }
+    // });
+
+    // Calculate the bounding box of the model
+    const boundingBox = new THREE.Box3().setFromObject(model);
+
+    // Get the center of the bounding box
+    const center = boundingBox.getCenter(new THREE.Vector3());
+
+    // Get the size of the bounding box
+    const size = boundingBox.getSize(new THREE.Vector3());
+
+    // Set the camera to look at the center of the bounding box
+    camera.lookAt(center);
+
+    // Position the camera at the top of the bounding box
+    camera.position.set(center.x, center.y + size.y, center.z);
+
+    // Adjust the frustum of the camera based on the size of the bounding box
+    const maxDim = Math.max(size.x, size.y, size.z);
+    const fSize = maxDim / 2;
+    camera.left = -fSize * aspect;
+    camera.right = fSize * aspect;
+    camera.top = fSize;
+    camera.bottom = -fSize;
+
+    // Ensure the camera's projection matrix is updated
+    camera.updateProjectionMatrix();
   },
   function (xhr) {
     console.log((xhr.loaded / xhr.total) * 100 + "% loaded");
