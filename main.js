@@ -1,6 +1,6 @@
 import * as THREE from "three";
-import { ColladaLoader } from "three/examples/jsm/loaders/ColladaLoader.js";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
+import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import TWEEN from "@tweenjs/tween.js";
 
 // Create renderer
@@ -15,27 +15,64 @@ scene.background = new THREE.Color(0xffffff);
 
 // Create camera
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-camera.position.z = 25;
+camera.position.z = 200;
 // camera.position.y = 10;
 // camera.position.x = 2.5;
 // camera.rotateX(-0.5);
 
+// Create controls
+const controls = new OrbitControls(camera, renderer.domElement);
+
 // Create lights
-const light = new THREE.PointLight(0xffffff, 100, 1000);
-light.position.set(0, 5, 10);
+// const light = new THREE.PointLight(0xffffff, 5, 1000);
+// light.position.set(0, 5, 1000);
+const light = new THREE.DirectionalLight(0xffffff, 5);
+
+// // Create a helper for the camera
+// const cameraHelper = new THREE.CameraHelper(camera);
+// scene.add(cameraHelper);
+
+// // Create a helper for the light
+// const lightHelper = new THREE.PointLightHelper(light);
+// scene.add(lightHelper);
 
 // Create GLTF loader
 const loader = new GLTFLoader();
 let model;
 loader.load(
-  "/scene.gltf", // replace this with the path to your model
+  "/terrain_Lic_glbl.glb", // replace this with the path to your model
   function (gltf) {
     model = gltf.scene;
 
+    // Ensure each mesh has a unique material
+    model.traverse((object) => {
+      if (object.isMesh) {
+        object.material = object.material.clone();
+      }
+    });
+
+    // Scale the model
+    // model.scale.set(0.1, 0.1, 0.1);
+
     scene.add(model);
 
-    // Animate the camera to zoom in to the model
-    animateCameraOnStart(new THREE.Vector3(0, 0, 15));
+    // Update the camera position based on the model's bounding box
+    model.traverse((object) => {
+      if (object.isMesh) {
+        object.geometry.computeBoundingBox();
+        const boundingBox = object.geometry.boundingBox;
+        const position = new THREE.Vector3();
+        boundingBox.getCenter(position);
+        const size = boundingBox.getSize(new THREE.Vector3());
+
+        // Set the camera to look at the center of the bounding box
+        camera.lookAt(position);
+
+        // Position the camera at the top of the bounding box
+        camera.position.set(position.x, position.y + size.y / 2, position.z);
+        // light.position.set(position.x, position.y + size.y / 2, 500);
+      }
+    });
   },
   function (xhr) {
     console.log((xhr.loaded / xhr.total) * 100 + "% loaded");
@@ -53,38 +90,12 @@ scene.add(light);
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
 
-// Add event listener for mouse click
-window.addEventListener("click", onMouseClick, false);
-
-function onMouseClick(event) {
-  event.stopPropagation();
-  // Calculate mouse position in normalized device coordinates (-1 to +1) for both components
-  mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-  mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-
-  // Update the picking ray with the camera and mouse position
-  raycaster.setFromCamera(mouse, camera);
-
-  // Calculate objects intersecting the picking ray
-  const intersects = raycaster.intersectObjects(scene.children, true);
-
-  for (let i = 0; i < intersects.length; i++) {
-    console.log(intersects[i].object);
-
-    // Get the position of the clicked object
-    const targetPosition = intersects[0].object.position.clone();
-
-    // Animate the camera to the clicked object's position
-    animateCameraPosition(targetPosition);
-  }
-}
+// Add event listener for mouse move
+window.addEventListener("mousemove", onMouseMove, false);
 
 // Variables to keep track of the currently hovered object and its original color
 let hoveredObj = null;
 let originalColor = null;
-
-// Add event listener for mouse move
-window.addEventListener("mousemove", onMouseMove, false);
 
 function onMouseMove(event) {
   // Calculate mouse position in normalized device coordinates (-1 to +1) for both components
@@ -100,6 +111,8 @@ function onMouseMove(event) {
   if (intersects.length > 0) {
     // If the hovered object has changed
     if (hoveredObj !== intersects[0].object) {
+      console.log(intersects[0].object.name);
+
       // Restore the original color of the previously hovered object
       if (hoveredObj) {
         hoveredObj.material.color.set(originalColor);
@@ -108,6 +121,8 @@ function onMouseMove(event) {
       // Save the currently hovered object and its original color
       hoveredObj = intersects[0].object;
       originalColor = hoveredObj.material.color.getHex();
+
+      if (!intersects[0].object.name.toLowerCase().includes("building")) return;
 
       // Change the color of the hovered object
       hoveredObj.material.color.set(0xff0000); // Change this to the hover color you want
@@ -121,42 +136,15 @@ function onMouseMove(event) {
   }
 }
 
-// Function to animate the camera position
-function animateCameraPosition(targetPosition) {
-  const coords = {
-    x: camera.position.x,
-    y: camera.position.y,
-  };
-  new TWEEN.Tween(coords)
-    .to({ x: targetPosition.x, y: targetPosition.y })
-    .easing(TWEEN.Easing.Quadratic.Out) // Use an easing function to make the animation smooth
-    .onUpdate(() => {
-      camera.position.set(coords.x, coords.y, camera.position.z);
-    })
-    .start(); // Start the tween immediately
-}
-
-function animateCameraOnStart(targetPosition) {
-  const coords = {
-    x: camera.position.x,
-    y: camera.position.y,
-    z: camera.position.z,
-  };
-  new TWEEN.Tween(coords)
-    .to({ x: targetPosition.x, y: targetPosition.y, z: targetPosition.z }, 2000) // 2000 ms = 2 seconds
-    .easing(TWEEN.Easing.Quadratic.Out) // Use an easing function to make the animation smooth
-    .onUpdate(() => {
-      camera.position.set(coords.x, coords.y, coords.z);
-    })
-
-    .start(); // Start the tween immediately
-}
-
 function animate() {
   requestAnimationFrame(animate);
 
+  // // Update helpers
+  // cameraHelper.update();
+  // lightHelper.update();
+
+  controls.update(); // required if controls.enableDamping or controls.autoRotate are set to true
   renderer.render(scene, camera);
-  TWEEN.update();
 }
 
 animate();
