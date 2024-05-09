@@ -17,7 +17,7 @@ document.body.appendChild(renderer.domElement);
 
 // Create scene with sky blue background
 const scene = new THREE.Scene();
-// scene.background = new THREE.Color(0x87ceeb);
+scene.background = new THREE.Color(0xffffff);
 
 // Create camera
 const camera = new THREE.PerspectiveCamera(30, window.innerWidth / window.innerHeight, 0.1, 3000);
@@ -27,8 +27,6 @@ camera.lookAt(new THREE.Vector3(230, -84, -263)); // Set camera direction
 // Create light
 const light = new THREE.DirectionalLight(0xffffff, 7);
 
-// light.position.set(-275, 934, 268);
-// light.target.position.set(-41, 155, -549);
 light.position.set(-830, 750, -1000);
 light.target.position.set(300, -80, -380);
 light.castShadow = true;
