@@ -38,8 +38,12 @@ light.shadow.camera.left = -1024;
 light.shadow.camera.right = 1024;
 light.shadow.camera.near = 0.5;
 light.shadow.camera.far = 1500;
+light.shadow.bias = -0.001;
 light.shadow.mapSize.width = 4096;
 light.shadow.mapSize.height = 4096;
+
+light.shadow.camera.updateProjectionMatrix();
+
 scene.add(light);
 scene.add(light.target);
 
@@ -60,6 +64,7 @@ loader.load(
       if (object instanceof THREE.Mesh) {
         if (["building", "furnicular"].some((str) => object.name.toLocaleLowerCase().includes(str))) {
           object.castShadow = true;
+          object.receiveShadow = true;
         } else {
           object.receiveShadow = true;
         }
@@ -135,8 +140,8 @@ window.addEventListener("resize", () => {
 // scene.add(helper);
 
 // Create stats
-// const stats = new Stats();
-// document.body.appendChild(stats.dom);
+const stats = new Stats();
+document.body.appendChild(stats.dom);
 
 // Create a new button element
 // const button = document.createElement("button");
@@ -161,7 +166,7 @@ function animate() {
     model.rotation.x = THREE.MathUtils.lerp(model.rotation.x, (mouse.y * Math.PI) / 200, 0.025);
   }
 
-  // stats.update(); // Update stats
+  stats.update(); // Update stats
   renderer.render(scene, camera);
 }
 
